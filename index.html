@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Product Manager</title>
+    <!-- 引入科技感英文字体 Orbitron 以及用户指定的 Manrope 字体（支持无极字重调节） -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+    <style>
+        /* ========================
+           1. 基础变量与重置
+           ======================== */
+        :root {
+            /* Apple 风格缓动曲线 */
+            --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            
+            /* 色彩系统 - 深色科技未来风 */
+            --bg-base: #050A14; /* 极深蓝底色 */
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --accent-blue: #4A90E2;
+            --accent-purple: #8E44AD;
+            --border-glow: #1D2F49;
+            
+            /* 玻璃拟态参数 */
+            --glass-bg: rgba(10, 15, 30, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-blur: blur(20px);
+            
+            /* 尺寸 */
+            --nav-height: 72px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 禁用默认滚动，由内部容器接管 */
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* ========================
+           2. 背景系统 (三层)
+           ======================== */
+        #bg-system {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+            background: var(--bg-base);
+        }
+
+        /* 底层：蓝紫弥散阴影 - 不规则流动型相互融合动画 */
+        .ambient-glow {
+            position: absolute;
+            /* 赋予基础的不规则形变圆角 */
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            filter: blur(120px); /* 保持高强度的模糊以呈现弥散感 */
+            opacity: 0.85; /* 适度提升不透明度确保能清晰看见色彩交汇 */
+            mix-blend-mode: screen; /* 在暗色调背景下叠加交汇时呈现高亮科技感 */
+            will-change: transform, border-radius;
+        }
+
+        /* 放弃径向渐变，改用纯色配合大尺寸blur，能更好地展示不规则流体的形状与融合 */
+        .glow-1 { 
+            top: 0%; left: 10%; width: 55vw; height: 55vw; 
+            background: rgba(74, 144, 226, 0.65); 
+            animation: fluidFlow1 18s infinite linear; 
+        }
+        .glow-2 { 
+            bottom: 0%; right: 10%; width: 65vw; height: 60vw; 
+            background: rgba(142, 68, 173, 0.55); 
+            animation: fluidFlow2 22s infinite linear; 
+        }
+        .glow-3 { 
+            top: 25%; left: 30%; width: 50vw; height: 50vw; 
+            background: rgba(41, 121, 255, 0.5); 
+            animation: fluidFlow3 25s infinite linear; 
+        }
+
+        /* 复杂的位移、缩放、旋转以及圆角实时变化，制造出液体互相融合交缠的视觉质感 */
+        @keyframes fluidFlow1 {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+            33% { transform: translate(15vw, 15vh) rotate(120deg) scale(1.1); border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%; }
+            66% { transform: translate(-10vw, 10vh) rotate(240deg) scale(0.9); border-radius: 30% 70% 50% 50% / 60% 40% 70% 40%; }
+            100% { transform: translate(0, 0) rotate(360deg) scale(1); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+        }
+
+        @keyframes fluidFlow2 {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); border-radius: 50% 50% 60% 40% / 60% 30% 70% 40%; }
+            33% { transform: translate(-15vw, -10vh) rotate(120deg) scale(0.9); border-radius: 40% 60% 40% 60% / 50% 50% 50% 50%; }
+            66% { transform: translate(10vw, -15vh) rotate(240deg) scale(1.15); border-radius: 60% 40% 70% 30% / 40% 70% 30% 60%; }
+            100% { transform: translate(0, 0) rotate(360deg) scale(1); border-radius: 50% 50% 60% 40% / 60% 30% 70% 40%; }
+        }
+
+        @keyframes fluidFlow3 {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1.1); border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+            33% { transform: translate(10vw, -10vh) rotate(-120deg) scale(0.95); border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; }
+            66% { transform: translate(-15vw, 15vh) rotate(-240deg) scale(1.2); border-radius: 50% 50% 50% 50% / 40% 60% 40% 60%; }
+            100% { transform: translate(0, 0) rotate(-360deg) scale(1.1); border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+        }
+
+        /* 修改点 1：粒子系统Canvas 被提拔，修改定位与绝对跨越层级 */
+        #particle-canvas {
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 5; /* 核心修复：确保处于 container 背景渐变(正常文档流)和光斑(0)之上 */
+            pointer-events: none;
+        }
+
+        /* 新增：鼠标拖尾粒子 Canvas */
+        #mouse-trail-canvas {
+            position: fixed; /* 改为 fixed，确保完全贴合浏览器视口 */
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 90; /* 设置为 90，确保在所有页面内容图片之上，且在导航栏(100)之下 */
+        }
+
+        /* 顶层：Noise遮罩 & 暗角 */
+        .noise-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.04"/%3E%3C/svg%3E');
+            mix-blend-mode: overlay;
+        }
+        .vignette {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.6) 150%);
+        }
+
+        /* ========================
+           3. 导航系统
+           ======================== */
+        #navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: var(--nav-height);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--glass-border);
+            transition: background 0.3s var(--ease-apple);
+        }
+
+        .nav-logo {
+            font-size: 16px; /* 修改为 16px */
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Orbitron', sans-serif; /* 替换为科技感字体 */
+        }
+
+        /* 修改：Logo 文本，常见的高级字体路径描边动画 (Stroke Drawing) */
+        .logo-svg {
+            display: block;
+            overflow: visible;
+        }
+
+        .logo-text-svg {
+            /* 【修改点】：应用用户指定的 Manrope 字体 */
+            font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 16px; /* 【修改点】：字号改成 16 */
+            font-weight: 380; /* 【修改点】：精确应用 380 字重 */
+            letter-spacing: 0.5px;
+            fill: rgba(255, 255, 255, 0); /* 替换 transparent，防止 Safari 过渡时变黑 */
+            stroke: #FFFFFF; /* 纯白色描边 */
+            stroke-width: 0.8px; /* 适当加粗一点确保你能看清描边过程 */
+            stroke-dasharray: 800; /* 【关键修复】：大幅增加路径长度，确保完全覆盖文字，真正从头开始画 */
+            stroke-dashoffset: 800;
+            /* 初次加载执行路径绘制动画 */
+            animation: drawPathAnim 2.5s ease-in-out forwards;
+        }
+
+        /* 鼠标移入时重新触发路径动画 */
+        .nav-logo:hover .logo-text-svg {
+            animation: drawPathAnimHover 2.5s ease-in-out forwards;
+        }
+
+        /* 路径绘制动画：0%完全透明 -> 60%描边完成 -> 100%填充纯白并隐藏描边 */
+        @keyframes drawPathAnim {
+            0% { stroke-dashoffset: 800; fill: rgba(255, 255, 255, 0); stroke: rgba(255, 255, 255, 1); }
+            60% { stroke-dashoffset: 0; fill: rgba(255, 255, 255, 0); stroke: rgba(255, 255, 255, 1); }
+            100% { stroke-dashoffset: 0; fill: rgba(255, 255, 255, 1); stroke: rgba(255, 255, 255, 0); }
+        }
+
+        /* Hover复用独立动画名强制重置 */
+        @keyframes drawPathAnimHover {
+            0% { stroke-dashoffset: 800; fill: rgba(255, 255, 255, 0); stroke: rgba(255, 255, 255, 1); }
+            60% { stroke-dashoffset: 0; fill: rgba(255, 255, 255, 0); stroke: rgba(255, 255, 255, 1); }
+            100% { stroke-dashoffset: 0; fill: rgba(255, 255, 255, 1); stroke: rgba(255, 255, 255, 0); }
+        }
+
+        .nav-logo::before {
+            content: '';
+            display: inline-block;
+            width: 10px; height: 10px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); /* 修改为蓝紫色渐变 */
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(142, 68, 173, 0.8);
+            animation: techPulse 1.5s infinite; /* 添加科技感闪烁呼吸动画 */
+        }
+
+        /* 科技感呼吸动画 (更新为蓝紫光晕) */
+        @keyframes techPulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(142, 68, 173, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(142, 68, 173, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(142, 68, 173, 0); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            height: 100%;
+            align-items: center;
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-primary);
+        }
+
+        /* 二级导航 (Dropdown) */
+        .dropdown-wrapper {
+            position: relative;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background: rgba(15, 20, 35, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 8px;
+            min-width: 140px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s var(--ease-apple);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .dropdown-wrapper:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        .dropdown-item {
+            display: block;
+            padding: 10px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .dropdown-item:hover {
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* 修改：向AI了解我按钮 - 弥散蓝紫流动动态背景 */
+        .nav-action-btn {
+            height: 36px;
+            padding: 0 20px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.9), rgba(142, 68, 173, 0.9), rgba(41, 121, 255, 0.9), rgba(142, 68, 173, 0.9));
+            background-size: 300% 300%;
+            animation: btnGradientFlow 4s ease infinite;
+            border: none;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-apple);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative; /* 为扫光效果提供定位上下文 */
+            overflow: hidden; /* 防止扫出的光带溢出按钮边界 */
+        }
+        .nav-action-btn:hover {
+            filter: brightness(1.15); /* 悬停时轻微提亮，不再覆盖动态背景 */
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(142,68,173,0.5);
+        }
+
+        /* 新增：按钮背景弥散流动动画 */
+        @keyframes btnGradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 新增：向AI了解我 按钮内 Icon 交互动效 */
+        .ai-btn-icon .bubble-path {
+            fill: transparent; /* 默认线性 */
+            transition: fill 0.3s ease;
+        }
+        .nav-action-btn:hover .ai-btn-icon .bubble-path {
+            fill: currentColor; /* 移入后填充纯色 */
+        }
+        .ai-btn-icon .ai-eye {
+            opacity: 0;
+            fill: var(--bg-base); /* 使用底层深色作为眼睛，实现镂空质感 */
+            transition: opacity 0.3s ease;
+            transform-origin: center; /* 增加原点居中，确保眨眼时是以眼睛自身中心压缩 */
+            transform-box: fill-box;
+        }
+        .nav-action-btn:hover .ai-btn-icon .ai-eye {
+            opacity: 1;
+            /* 每次移入单次执行，总时长缩短，并最终停留在右看状态 */
+            animation: aiEyeLook 2.2s forwards; 
+        }
+        
+        /* 修改：先看右边，随后连续眨眼 3 次 */
+        @keyframes aiEyeLook {
+            0%, 5% { transform: translateX(0) scaleY(1); } /* 初始看向正前方 */
+            15%, 25% { transform: translateX(3.5px) scaleY(1); } /* 移入后先平滑看向右侧文案并保持 */
+            28% { transform: translateX(3.5px) scaleY(0.1); } /* 眨眼1 闭 */
+            31%, 40% { transform: translateX(3.5px) scaleY(1); } /* 眨眼1 睁 */
+            43% { transform: translateX(3.5px) scaleY(0.1); } /* 眨眼2 闭 */
+            46%, 55% { transform: translateX(3.5px) scaleY(1); } /* 眨眼2 睁 */
+            58% { transform: translateX(3.5px) scaleY(0.1); } /* 眨眼3 闭 */
+            61%, 100% { transform: translateX(3.5px) scaleY(1); } /* 眨眼3 睁，随后一直保持看向右侧 */
+        }
+
+        /* 新增：向AI了解我 按钮的扫白光效果 */
+        .nav-action-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-25deg); /* 倾斜光芒更有速度感 */
+            animation: sweepLight 6s infinite; /* 总周期 6s */
+        }
+
+        @keyframes sweepLight {
+            0% { left: -150%; animation-timing-function: ease-in; } /* 开始时在左外侧，并使用先慢后快 (ease-in) 曲线 */
+            25% { left: 150%; } /* 6s 的 25% 即为 1.5s，单次扫完停留在右外侧 */
+            100% { left: 150%; } /* 剩下的 4.5s 原地等待进入下一个 6s 循环 */
+        }
+
+        /* 顶部进度条 */
+        #scroll-progress {
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        /* ========================
+           4. 全屏滚动容器
+           ======================== */
+        #fullpage-container {
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            /* 隐藏滚动条但保留功能 */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+            
+            /* 蓝紫弥散流动渐变背景 */
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.12), rgba(142, 68, 173, 0.15), rgba(41, 121, 255, 0.12), rgba(142, 68, 173, 0.1));
+            background-size: 300% 300%;
+            animation: containerGradientFlow 12s ease infinite;
+        }
+        #fullpage-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 挂载在全屏容器上的动态拖尾光圈 (伪元素) */
+        #fullpage-container::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 80vw;
+            height: 80vw;
+            max-width: 800px;
+            max-height: 800px;
+            /* 纯圆形渐变，降低透明度，主蓝辅紫 */
+            background: radial-gradient(circle, rgba(74, 144, 226, 0.25) 0%, rgba(142, 68, 173, 0.15) 40%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(60px);
+            mix-blend-mode: screen;
+            z-index: 0; /* 修正：-1 会被父容器的背景色彻底覆盖，改为 0 即可在背景之上、内容之下完美显示 */
+            pointer-events: none;
+            transform-origin: center;
+            will-change: transform;
+            /* 通过 JS 动态更新 CSS 变量控制随机游走，中心点对齐 */
+            transform: translate3d(var(--comet-x, 50vw), var(--comet-y, 50vh), 0) translate(-50%, -50%);
+        }
+
+        /* 全屏容器背景流动动画 */
+        @keyframes containerGradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .section {
+            width: 100%;
+            height: 100vh;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding-top: var(--nav-height); /* 避免内容被导航栏遮挡 */
+            z-index: 10; /* 修改点 2：显式声明层叠上下文，保护内容层不被粒子层覆盖 */
+        }
+
+        /* ========================
+           5. 第一屏：纯代码排版
+           ======================== */
+        #hero-content {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s var(--ease-out-expo), transform 1s var(--ease-out-expo);
+            position: relative; 
+            z-index: 20; /* 修改点 3：保护文字绝对不被粒子遮挡 */
+        }
+        .section.visible #hero-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hero-title {
+            font-size: 4vw;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #FFF, #A0B2C6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-subtitle {
+            font-size: 1.5vw;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .scroll-hint-wrapper {
+            position: absolute;
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            transition: opacity 1s 0.5s ease;
+            z-index: 20; /* 修改点 4：保护滚动提示动画 */
+        }
+        .section.visible .scroll-hint-wrapper {
+            opacity: 1;
+        }
+        .scroll-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .scroll-mouse {
+            width: 24px;
+            height: 40px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+        .scroll-wheel {
+            width: 4px; height: 6px;
+            background: white;
+            border-radius: 2px;
+            margin-top: 6px;
+            animation: scrollWheel 2s infinite var(--ease-apple);
+        }
+
+        @keyframes scrollWheel {
+            0% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(12px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 0; }
+        }
+
+        /* ========================
+           6. 图片展示系统
+           ======================== */
+        .image-wrapper {
+            width: 100%;   /* 填充满整个父容器（即全屏宽度） */
+            height: 100%;  /* 填充满整个可用高度 */
+            max-width: 100%;
+            border: none;
+            background: transparent;
+            border-radius: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 20; /* 修改点 5：保护作品图片不被粒子遮挡 */
+            
+            /* 进入动画初始状态 */
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+        }
+
+        .section.visible .image-wrapper {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .image-wrapper:hover {
+            transform: none; 
+            box-shadow: none;
+        }
+
+        .portfolio-img {
+            max-width: calc(100% - 160px); /* 左右固定 80px margin (双侧 80*2 = 160px) */
+            max-height: 100%; /* 上下自适应，受父容器限制不溢出 */
+            width: auto;
+            height: auto;
+            object-fit: contain; /* 保持自身比例 */
+            /* 彻底去除了 opacity: 0; 让图片纯粹依靠原生加载机制和父级可见性进行展现 */
+            box-sizing: border-box; /* 让描边包含在内 */
+            border-radius: 24px; /* 添加 Apple 风格圆角 */
+            border: 2px solid rgba(255, 255, 255, 0.3); /* 默认浅灰色描边 */
+            transition: border-color 0.4s var(--ease-apple); /* 确保背景渐变过渡平滑 */
+        }
+
+        /* 为科技流光描边定义自定义角度属性 */
+        @property --border-angle {
+            syntax: "<angle>";
+            inherits: true;
+            initial-value: 0turn;
+        }
+
+        /* 流光环绕动画关键帧 */
+        @keyframes borderRotate {
+            0% { --border-angle: 0turn; }
+            100% { --border-angle: 1turn; }
+        }
+
+        /* 鼠标悬停时的图片描边变化：流动的蓝紫科技线条在描边中环绕 */
+        .image-wrapper:hover .portfolio-img {
+            border-color: transparent;
+            /* 兼容老版本浏览器的静态兜底 */
+            background: linear-gradient(var(--bg-base), var(--bg-base)) padding-box,
+                        linear-gradient(135deg, var(--accent-blue), var(--accent-purple)) border-box;
+            /* 现代浏览器的科技流动光束：保留微弱基础色作为暗轨，叠加高亮移动光束 */
+            background: linear-gradient(var(--bg-base), var(--bg-base)) padding-box,
+                        conic-gradient(
+                            from var(--border-angle, 0turn),
+                            rgba(255, 255, 255, 0.15) 0%,
+                            rgba(255, 255, 255, 0.15) 50%,
+                            var(--accent-blue) 85%,
+                            var(--accent-purple) 98%,
+                            rgba(255, 255, 255, 0.15) 100%
+                        ) border-box;
+            animation: borderRotate 2.5s linear infinite;
+        }
+
+        /* ========================
+           7. Dify AI Modal
+           ======================== */
+        #dify-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s var(--ease-apple);
+        }
+        #dify-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            width: 90%;
+            max-width: 1000px; /* 已将弹窗宽度拉长 */
+            height: 85vh;
+            background: #fff;
+            border-radius: 20px;
+            /* 允许 Y 轴自动滚动以兼容 Dify 超长内容 */
+            overflow-y: auto; 
+            overflow-x: hidden;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.4s var(--ease-apple);
+            position: relative;
+        }
+        #dify-modal.active .modal-content {
+            transform: translateY(0) scale(1);
+        }
+        
+        /* 新型内部右侧关闭按钮样式 */
+        .modal-close-btn {
+            position: absolute;
+            top: 15px; 
+            right: 15px; /* 定位在弹窗内部右上方 */
+            width: 36px; 
+            height: 36px;
+            background: rgba(0, 0, 0, 0.08); /* 浅灰色背景 */
+            color: #333;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        .modal-close-btn:hover {
+            background: rgba(0, 0, 0, 0.15);
+            transform: scale(1.1);
+        }
+
+        .dify-iframe {
+            width: 100%; height: 100%; border: none; display: block;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .nav-links { display: none; } /* 移动端精简导航 */
+            .hero-title { font-size: 8vw; }
+            .hero-subtitle { font-size: 4vw; padding: 0 20px; }
+            .image-wrapper { width: 100%; height: 100%; border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景系统 -->
+    <div id="bg-system">
+        <div class="ambient-glow glow-1"></div>
+        <div class="ambient-glow glow-2"></div>
+        <div class="ambient-glow glow-3"></div>
+        <!-- 修改点 6：彻底将粒子 Canvas 移出容易被遮盖的 bg-system 黑洞 -->
+        <div class="noise-overlay"></div>
+        <div class="vignette"></div>
+    </div>
+
+    <!-- 粒子系统被提拔到与拖尾动画同级的外部 -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- 将拖尾 Canvas 移出 bg-system，解除图层禁锢 -->
+    <canvas id="mouse-trail-canvas"></canvas>
+
+    <!-- 顶部导航 -->
+    <nav id="navbar">
+        <div class="nav-logo" onclick="scrollToSection('hero')">
+            <!-- 采用 SVG 标签承载文字，以支持高级的字体路径描边动画 -->
+            <svg class="logo-svg" viewBox="0 0 100 24" width="100" height="24">
+                <text x="0" y="17" class="logo-text-svg">Chester</text>
+            </svg>
+        </div>
+        
+        <div class="nav-links">
+            <a class="nav-item" data-target="hero" onclick="scrollToSection('hero')">首页</a>
+            <a class="nav-item" data-target="section-02.png" onclick="scrollToSection('section-02.png')">关于我</a>
+            <a class="nav-item" data-target="section-03.png" onclick="scrollToSection('section-03.png')">项目概览</a>
+            
+            <div class="dropdown-wrapper">
+                <a class="nav-item">案例详情 ▾</a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" onclick="scrollToSection('section-04.png')">智能问数</a>
+                    <a class="dropdown-item" onclick="scrollToSection('section-30.png')">智能客服</a>
+                </div>
+            </div>
+            <a class="nav-item" data-target="section-45.png" onclick="scrollToSection('section-45.png')">联系方式</a>
+        </div>
+
+        <button class="nav-action-btn" onclick="toggleModal(true)">
+            <!-- 带有眨眼交互的圆润版 AI Icon -->
+            <svg class="ai-btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <!-- 替换为圆润的圆形气泡路径 -->
+                <path class="bubble-path" d="M12 2C6.477 2 2 6.477 2 12c0 1.748.448 3.393 1.238 4.838L2 22l5.162-1.238C8.607 21.552 10.252 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"></path>
+                <!-- 预置的两只小眼睛（调整位置以适配圆形，默认隐藏） -->
+                <circle class="ai-eye" cx="8.5" cy="10" r="1.5" stroke="none"></circle>
+                <circle class="ai-eye" cx="15.5" cy="10" r="1.5" stroke="none"></circle>
+            </svg>
+            向AI了解我
+        </button>
+
+        <div id="scroll-progress"></div>
+    </nav>
+
+    <!-- 核心：全屏滚动容器 -->
+    <main id="fullpage-container">
+        <!-- 首页：纯代码 -->
+        <section class="section" id="hero">
+            <div id="hero-content">
+                <h1 class="hero-title">AI产品设计与智能系统构建者</h1>
+                <p class="hero-subtitle">一名专注于推动业务 AI 化落地的产品经理</p>
+            </div>
+            
+            <div class="scroll-hint-wrapper">
+                <span class="scroll-text">向下滑动，探索作品</span>
+                <div class="scroll-mouse">
+                    <div class="scroll-wheel"></div>
+                </div>
+            </div>
+        </section>
+        <!-- 第二屏及以后将由 JS 动态注入 -->
+    </main>
+
+    <!-- Dify 弹窗 -->
+    <div id="dify-modal" onclick="toggleModal(false)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <!-- 弹窗内部右上方新增圆形关闭按钮 -->
+            <div class="modal-close-btn" onclick="toggleModal(false)">✕</div>
+            <iframe class="dify-iframe" src="about:blank" data-src="https://udify.app/chatbot/qCDEyR5HgEpjpXHR" style="width: 100%; height: 100%; min-height: 700px" frameborder="0" allow="microphone" title="AI Assistant"></iframe>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * =========================================
+         * ⚠️ 图片数据管理 (分批注入机制核心)
+         * =========================================
+         */
+        const portfolioImages = [
+            // 已将所有的44张图片依次加入（02 到 45）
+            { filename: '02.png' }, { filename: '03.png' }, { filename: '04.png' }, { filename: '05.png' },
+            { filename: '06.png' }, { filename: '07.png' }, { filename: '08.png' }, { filename: '09.png' },
+            { filename: '10.png' }, { filename: '11.png' }, { filename: '12.png' }, { filename: '13.png' },
+            { filename: '14.png' }, { filename: '15.png' }, { filename: '16.png' }, { filename: '17.png' },
+            { filename: '18.png' }, { filename: '19.png' }, { filename: '20.png' }, { filename: '21.png' },
+            { filename: '22.png' }, { filename: '23.png' }, { filename: '24.png' }, { filename: '25.png' },
+            { filename: '26.png' }, { filename: '27.png' }, { filename: '28.png' }, { filename: '29.png' },
+            { filename: '30.png' }, { filename: '31.png' }, { filename: '32.png' }, { filename: '33.png' },
+            { filename: '34.png' }, { filename: '35.png' }, { filename: '36.png' }, { filename: '37.png' },
+            { filename: '38.png' }, { filename: '39.png' }, { filename: '40.png' }, { filename: '41.png' },
+            { filename: '42.png' }, { filename: '43.png' }, { filename: '44.png' }, { filename: '45.png' }
+        ];
+
+        const container = document.getElementById('fullpage-container');
+
+        /**
+         * 动态渲染图片 Section
+         */
+        function renderImageSections() {
+            portfolioImages.forEach((imgData) => {
+                const sectionId = `section-${imgData.filename}`;
+                
+                if(document.getElementById(sectionId)) return;
+
+                const section = document.createElement('section');
+                section.className = 'section';
+                section.id = sectionId;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-wrapper';
+
+                const img = document.createElement('img');
+                img.className = 'portfolio-img';
+                img.setAttribute('data-src', imgData.filename);
+                img.alt = `Portfolio Slide ${imgData.filename}`;
+
+                wrapper.appendChild(img);
+                section.appendChild(wrapper);
+                container.appendChild(section);
+
+                sectionObserver.observe(section);
+            });
+        }
+
+        /**
+         * Intersection Observer: 滚动动画与懒加载
+         */
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    const img = entry.target.querySelector('.portfolio-img');
+                    if (img && !img.hasAttribute('src')) {
+                        img.setAttribute('src', img.getAttribute('data-src'));
+                    }
+                    
+                    updateNavHighlight(entry.target.id);
+                }
+            });
+        }, { 
+            threshold: 0.4 
+        });
+
+        if (document.getElementById('hero')) {
+            sectionObserver.observe(document.getElementById('hero'));
+        }
+
+        /**
+         * 更新导航栏高亮
+         */
+        function updateNavHighlight(currentId) {
+            const navItems = document.querySelectorAll('.nav-links .nav-item[data-target]');
+            navItems.forEach(item => item.classList.remove('active'));
+            
+            const activeItem = document.querySelector(`.nav-links .nav-item[data-target="${currentId}"]`);
+            if(activeItem) {
+                activeItem.classList.add('active');
+            }
+        }
+
+        /**
+         * 导航点击滚动
+         */
+        window.scrollToSection = function(id) {
+            const target = document.getElementById(id);
+            if(target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                console.log(`Section ${id} 尚未加载或不存在`);
+            }
+        };
+
+        /**
+         * 滚动进度条更新
+         */
+        if (container) {
+            container.addEventListener('scroll', () => {
+                const scrollHeight = container.scrollHeight - container.clientHeight;
+                const scrolled = (container.scrollTop / scrollHeight) * 100;
+                document.getElementById('scroll-progress').style.width = `${scrolled}%`;
+            });
+        }
+
+        /**
+         * Dify Modal 控制
+         */
+        window.toggleModal = function(show) {
+            const modal = document.getElementById('dify-modal');
+            const iframe = modal.querySelector('.dify-iframe');
+            if(show) {
+                modal.classList.add('active');
+                if(iframe.src === 'about:blank' || iframe.src.includes('about:blank')) {
+                    iframe.src = iframe.getAttribute('data-src');
+                }
+            } else {
+                modal.classList.remove('active');
+            }
+        };
+
+        /**
+         * =========================================
+         * 氛围系统：Canvas 粒子系统 (修改点 7：视觉显著化与物理排斥力强化)
+         * =========================================
+         */
+        function initParticles() {
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let particles = [];
+
+            // 移动端自动弱化，性能保护
+            const isMobile = window.innerWidth < 768;
+            const particleCount = isMobile ? 40 : 100; // 适当增加粒子数量，让氛围更浓郁
+
+            // 维护鼠标位置进行轻微排斥
+            let mouseX = -1000;
+            let mouseY = -1000;
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            window.addEventListener('mouseout', () => {
+                mouseX = -1000;
+                mouseY = -1000;
+            });
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.size = Math.random() * 1.5 + 1.5; // 加大尺寸(1.5~3px)，防止在发光背景中消失
+                    this.alpha = Math.random() * 0.15 + 0.1; // 【修改点】：再次稍微降低一点透明度（区间从 0.15~0.4 降至 0.1~0.25）
+                    // 极度缓慢漂浮（类似宇宙尘埃）
+                    this.vx = (Math.random() - 0.5) * 0.3; 
+                    this.vy = (Math.random() - 0.5) * 0.3;
+                    this.baseVx = this.vx;
+                    this.baseVy = this.vy;
+                }
+                update() {
+                    // 轻微鼠标排斥力影响
+                    const dx = this.x - mouseX;
+                    const dy = this.y - mouseY;
+                    const dist = Math.hypot(dx, dy);
+                    const influenceRadius = 200; // 扩大鼠标感应排斥的半径
+
+                    if (dist < influenceRadius && dist > 0) {
+                        const force = (influenceRadius - dist) / influenceRadius;
+                        // 显著加大排斥加速度，让你鼠标滑过时能有明确肉眼可见的避让反馈
+                        this.vx += (dx / dist) * force * 0.05;
+                        this.vy += (dy / dist) * force * 0.05;
+                    } else {
+                        // 缓慢恢复为原有宇宙尘埃漂浮速度
+                        this.vx += (this.baseVx - this.vx) * 0.04;
+                        this.vy += (this.baseVy - this.vy) * 0.04;
+                    }
+
+                    // 速度硬性上限保护，确保避让后不会乱飞乱抖
+                    this.vx = Math.max(-2.5, Math.min(2.5, this.vx));
+                    this.vy = Math.max(-2.5, Math.min(2.5, this.vy));
+
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // 屏幕无缝环绕
+                    if (this.x < -10) this.x = width + 10;
+                    if (this.x > width + 10) this.x = -10;
+                    if (this.y < -10) this.y = height + 10;
+                    if (this.y > height + 10) this.y = -10;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    // 核心视觉修正：采用纯白填充 + 蓝紫光晕阴影，彻底解决深色背景色差被吃掉的问题
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`; 
+                    ctx.shadowBlur = 6; 
+                    ctx.shadowColor = `rgba(74, 144, 226, ${this.alpha})`; 
+                    ctx.fill();
+                }
+            }
+
+            function init() {
+                resize();
+                particles = [];
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle());
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(animate);
+            }
+
+            window.addEventListener('resize', resize);
+            init();
+            animate();
+        }
+
+        /**
+         * =========================================
+         * 新增：鼠标拖尾细腻粒子系统
+         * =========================================
+         */
+        function initMouseTrail() {
+            const canvas = document.getElementById('mouse-trail-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let particles = [];
+
+            // 维护鼠标状态，防止触发原生mousemove时的掉帧，交由requestAnimationFrame统一接管
+            let mouse = { x: -100, y: -100, isMoving: false };
+            let stopTimeout;
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+
+            class TrailParticle {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.size = Math.random() * 4 + 2; // 尺寸 2px ~ 6px 之间
+                    // 初始微小发散速度，制造扩散感
+                    this.vx = (Math.random() - 0.5) * 1.5; 
+                    this.vy = (Math.random() - 0.5) * 1.5;
+                    // 生命周期 0.5 ~ 1.2 秒 (假设60fps，折算为衰减率)
+                    this.life = Math.random() * 0.7 + 0.5; 
+                    this.alpha = 0.6 + Math.random() * 0.4; // 初始透明度 0.6 ~ 1.0
+                    this.decay = this.alpha / (this.life * 60); 
+                    
+                    // 颜色：蓝紫交替分配，保持高级科技风
+                    const isBlue = Math.random() > 0.5;
+                    this.r = isBlue ? 74 : 142;
+                    this.g = isBlue ? 144 : 68;
+                    this.b = isBlue ? 226 : 173;
+                }
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.alpha -= this.decay;
+                    this.size -= 0.05; // 随时间轻微缩小
+                }
+                draw() {
+                    if (this.alpha <= 0 || this.size <= 0) return;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${this.r}, ${this.g}, ${this.b}, ${this.alpha})`;
+                    ctx.shadowBlur = 12; // 柔和发光效果
+                    ctx.shadowColor = `rgba(${this.r}, ${this.g}, ${this.b}, ${this.alpha})`;
+                    ctx.fill();
+                }
+            }
+
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+                mouse.isMoving = true;
+                
+                // 鼠标停下 50ms 后停止生成新粒子
+                clearTimeout(stopTimeout);
+                stopTimeout = setTimeout(() => {
+                    mouse.isMoving = false;
+                }, 50); 
+            });
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                
+                // 核心控制：每帧判定，只有在鼠标移动时固定生成 2~4 个粒子
+                if (mouse.isMoving && particles.length < 150) {
+                    const count = Math.floor(Math.random() * 3) + 2; 
+                    for (let i = 0; i < count; i++) {
+                        const offsetX = (Math.random() - 0.5) * 8; // 随机位置偏移，使尾翼有体积感
+                        const offsetY = (Math.random() - 0.5) * 8;
+                        particles.push(new TrailParticle(mouse.x + offsetX, mouse.y + offsetY));
+                    }
+                }
+
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
+                
+                // 性能保护：清理已完全透明或尺寸耗尽的粒子，回收内存
+                particles = particles.filter(p => p.alpha > 0 && p.size > 0);
+                
+                requestAnimationFrame(animate);
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+            animate();
+        }
+
+        // --- 初始化执行 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderImageSections();
+            initParticles();
+            initMouseTrail();
+            
+            setTimeout(() => {
+                if (container) container.scrollTop = 0;
+            }, 100);
+        });
+    </script>
+</body>
+</html>
